@@ -1,0 +1,64 @@
+select * from ashu.Bloodpressure
+EXEC sp_rename 'ashu.Bloodpressure.BPAlerts', 'BPStatus', 'COLUMN'
+
+alter table ashu.Bloodpressure
+add Outcome INT
+update ashu.Bloodpressure
+set Outcome=1
+where BPStatus= 'Hypo1'
+update ashu.Bloodpressure
+set Outcome=1
+where BPStatus= 'Normal'
+update ashu.Bloodpressure
+set Outcome=0
+where BPStatus= 'Hypo2'
+update ashu.Bloodpressure
+set Outcome=0
+where BPStatus= 'HTN1'
+update ashu.Bloodpressure
+set Outcome=0
+where BPStatus= 'HTN2'
+update ashu.Bloodpressure
+set Outcome=0
+where BPStatus= 'HTN3'
+
+Select * from dbo.Demographics a
+inner JOIN
+ashu.Bloodpressure b
+on
+a.contactid=b.ID
+
+Select contactid, avg(SystolicValue) as SystolicValue, avg(Diastolicvalue) as Diastolicvalue from dbo.Demographics a
+inner JOIN
+ashu.Bloodpressure b
+on
+a.contactid=b.ID
+group by contactid
+
+#Filter based on Min ObservedTime per patient ID (0 weeks):
+select * from dbo.Demographics a
+inner JOIN (
+    select ID, min(ObservedTime) as ObservedTime, avg(SystolicValue) as SystolicValue, avg(Diastolicvalue) as Diastolicvalue
+    from ashu.Bloodpressure
+    group by ID
+) b on a.contactid=b.ID
+
+#Filter based on Max ObservedTime per patient ID (12 weeks):
+select * from dbo.Demographics a
+inner JOIN (
+    select ID, max(ObservedTime) as ObservedTime, avg(SystolicValue) as SystolicValue, avg(Diastolicvalue) as Diastolicvalue
+    from ashu.Bloodpressure
+    group by ID
+) b on a.contactid=b.ID
+
+#Merge the tables Demographics, Conditions and TextMessages.
+select * from Demographics a
+inner join Conditions b
+on a.contactid=b.tri_patientid
+inner join (
+    select tri_contactId, max(TextSentDate) as TextSentDate 
+    from Text
+    group by tri_contactId
+) c on c.tri_contactId=a.contactid
+
+
