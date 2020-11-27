@@ -1,0 +1,78 @@
+myconn<-odbcConnect("dartmouthqbs181", "ashu", "ashu@qbs181")
+IC_Encounter<-sqlQuery(myconn,"select * from [qbs181].[ashu].PhoneCall_Encounter")
+
+IC_Encounter$EnrollmentGroup[IC_Encounter$EncounterCode == 125060000] <- "Clinical Alert"
+IC_Encounter$EnrollmentGroup[IC_Encounter$EncounterCode == 125060001] <- "Health Coaching"
+IC_Encounter$EnrollmentGroup[IC_Encounter$EncounterCode == 125060002] <- "Technical Question"
+IC_Encounter$EnrollmentGroup[IC_Encounter$EncounterCode == 125060003] <- "Administrative"
+IC_Encounter$EnrollmentGroup[IC_Encounter$EncounterCode == 125060004] <- "Other"
+IC_Encounter$EnrollmentGroup[IC_Encounter$EncounterCode == 125060005] <- "Lack of engagement”
+
+Clinical_Alert<-sqldf("select count(distinct CustomerId) as Clinical_Alert from IC_Encounter where EncounterCode=125060000")
+Health_Coaching<-sqldf("select count(distinct CustomerId) as Health_Coaching from IC_Encounter where EncounterCode=125060001")
+Technical_Question<-sqldf("select count(distinct CustomerId) as Technical_Question from IC_Encounter where EncounterCode=125060002")
+Administrative<-sqldf("select count(distinct CustomerId) as Administrative from IC_Encounter where EncounterCode=125060003")
+Other<-sqldf("select count(distinct CustomerId) as Other from IC_Encounter where EncounterCode=125060004")
+Lack_of_engagement<-sqldf("select count(distinct CustomerId) as Lack_of_engagement from IC_Encounter where EncounterCode=125060005”)
+
+Callencounter_duration<-sqlQuery(myconn,"select A.*, B.* from PhoneCall_Encounter A
+inner join CallDuration B 
+on A.CustomerId=B.tri_CustomerIDEntityReference”)
+
+Inbound_No_Response<-sqldf("select count(CallType) as Inbound_No_Response from Callencounter_duration
+                           where CallType=1 and CallOutcome=1”)
+
+Inbound_Voice<-sqldf("select count(CallType) as Inbound_Voice from Callencounter_duration
+                           where CallType=1 and CallOutcome=2”)
+
+Dur_Inbound_Voice<-sqldf("select avg(CallDuration) as Inbound_Voice from Callencounter_duration
+                           where CallType=1 and CallOutcome=2")
+
+Inbound_Success<-sqldf("select count(CallType) as Inbound_Success from Callencounter_duration
+                           where CallType=1 and CallOutcome=3”)
+
+Outbound_No_Response<-sqldf("select count(CallType) as Outbound_No_Response from Callencounter_duration
+                           where CallType=2 and CallOutcome=1”)
+
+Outbound_Voice<-sqldf("select count(CallType) as Outbound_Voice from Callencounter_duration
+                           where CallType=2 and CallOutcome=2”)
+
+Outbound_Success<-sqldf("select count(CallType) as Outbound_Success from Callencounter_duration
+                           where CallType=2 and CallOutcome=3”)
+
+Dur_Inbound_No_Response<-sqldf("select avg(CallDuration) as Inbound_No_Response from Callencounter_duration
+                           where CallType=1 and CallOutcome=1”)
+
+Dur_Group1<-sqldf("select avg(CallDuration) as Dur_Group1 from Callencounter_duration
+                           where EncounterCode=125060000")
+
+Dur_Group2<-sqldf("select avg(CallDuration) as Dur_Group2 from Callencounter_duration
+                           where EncounterCode=125060001")
+Dur_Group3<-sqldf("select avg(CallDuration) as Dur_Group3 from Callencounter_duration
+                           where EncounterCode=125060002")
+Dur_Group4<-sqldf("select avg(CallDuration) as Dur_Group4 from Callencounter_duration
+                           where EncounterCode=125060003")
+Dur_Group5<-sqldf("select avg(CallDuration) as Dur_Group5 from Callencounter_duration
+                           where EncounterCode=125060004")
+Dur_Group6<-sqldf("select avg(CallDuration) as Dur_Group6 from Callencounter_duration
+                           where EncounterCode=125060005")
+
+Demo_Cond_Text<-sqlQuery(myconn,"select * from Demographics a
+inner join Conditions b
+on a.contactid=b.tri_patientid
+inner join Text c
+on c.tri_contactId=a.contactid")
+TextSentDate <- as.Date(Demo_Cond_Text$TextSentDate,format="%m/%d/%y")
+install.packages("aweek")
+library("aweek")
+??("aweek")
+TextSentDate<-as.aweek(TextSentDate)
+Demo_Cond_Text$TextSentWeek <- date2week(TextSentDate)
+Textnumber<-sqldf("select count(contactid) as Textnumber from Demo_Cond_Text 
+group by contactid, SenderName
+order by TextSentWeek")
+
+Textnumbcondition<-sqldf("select count(contactid) as Textnumbcondition from Demo_Cond_Text 
+group by tri_name
+order by TextSentWeek")
+
