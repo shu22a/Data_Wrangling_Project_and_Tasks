@@ -1,1 +1,78 @@
 midterm
+```{r}
+install.packages("haven")
+install.packages("tidyverse")
+install.packages("dplyr")
+library(haven)
+library("sqldf")
+library("tidyverse")
+library("dplyr")
+text<-read_xpt("DIQ_I.XPT")
+str(text)
+```
+
+**Update column based on condition in R**
+```{r}
+text$DIQ060U[text$DID060==777]<-0
+text$DIQ060U[text$DID060==999]<-0
+text$DIQ260U[text$DID260==0]<-0
+text$DIQ260U[text$DID260==777]<-0
+text$DIQ260U[text$DID260==999]<-0
+```
+
+
+**Verify variable counts as mentioned on the website in R**
+```{r}
+text%>%count(text$DIQ060U)%>%(which(text$DIQ060U==1))
+length(text[which(text$DIQ060==1)])
+#didn't work. Will work on it.
+```
+
+**Update column based on condition in SQL**
+```{r}
+sqltext<-sqldf("select * from text")
+sqltext<-sqldf(c("update sqltext
+             set DIQ060U=0
+             where DID060=777",
+             "select * from sqltext"))
+sqltext<-sqldf(c("update sqltext
+             set DIQ060U=0
+             where DID060=999",
+                 "select * from sqltext"))
+sqltext<-sqldf(c("update sqltext
+             set DIQ060U=0
+             where DID060=0",
+                 "select * from sqltext"))
+sqltext<-sqldf(c("update sqltext
+             set DIQ260U=0
+             where DID260=777",
+                 "select * from sqltext"))
+sqltext<-sqldf(c("update sqltext
+             set DIQ260U=0
+             where DID260=999",
+                 "select * from sqltext"))
+```
+
+**Converting datatype to floating numbers in SQL**
+```{r}
+sqltext<-sqldf(c("update sqltext
+                 cast(DIQ280 as Float)
+                 select * from sqltext"))
+#this code doesn't work. Would you point me in the right direction?
+```
+
+**Verify variable counts as mentioned on the website in SQL**
+```{r}
+sqldf("select count(DID060) from text where DID060=777")
+sqldf("select count(DID060) from text where DID060=999")
+
+sqldf("select count(DID260) from text where DID260=0")
+sqldf("select count(DID260) from text where DID260=777")
+sqldf("select count(DID260) from text where DID260=999")
+
+sqldf("select count(DIQ260U) from text where DIQ260U=1")
+sqldf("select count(DIQ260U) from text where DIQ260U=2")
+sqldf("select count(DIQ260U) from text where DIQ260U=3")
+sqldf("select count(DIQ260U) from text where DIQ260U=4")
+sqldf("select count(DIQ260U) from text where DIQ260U is null")
+```
