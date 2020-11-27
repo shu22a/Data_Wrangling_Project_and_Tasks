@@ -1,0 +1,56 @@
+library(dplyr)
+library(tidyverse)
+
+filter(table2, type=="cases")
+
+filter(table2, type=="population")
+
+newtable2<-spread(table2,key=type,value=count)
+mutate(newtable2,rate=(cases/population)*10000)
+
+table4a%>%gather(`1999`,`2000`,key="year",value="cases")
+casestable<-table4a%>%gather(`1999`,`2000`,key="year",value="cases")
+cases<-casestable$cases
+
+table4b%>%gather(`1999`,`2000`,key="year",value="population")
+populationtable<-table4b%>%gather(`1999`,`2000`,key="year",value="population")
+population<-populationtable$population
+
+mutate(casestable,rate=(cases/population)*10000)
+mutate(populationtable,rate=(cases/population)*10000)
+
+table4a%>%gather(`1999`,`2000`,key="year",value="cases")
+
+library(nycflights13)
+str(flights)
+library(ggplot2)
+
+ggplot(flights, aes(air_time)+geom_histogram()
+
+flights$dep_time
+as.POSIXct(flights$dep_time)
+as.POSIXct()
+flights$dep_time <- strptime(dep_time = as.character(flights$dep_time),
+                                format = "%H:%M:%S")
+flights%>%mutate(flights, dep_time= as.Date(dep_time, format= "%H:%M:%S"))
+       
+flights$dep_time
+flights <- transform(flights, dep_time = as.POSIXct(as.character(dep_time)))
+str(flights)
+
+hist(flights$dep_time)
+
+flights$sched_dep_time
+
+flights%>%mutate(flights, act_delay=dep_time-sched_dep_time)
+
+ggplot(flights, aes(act_delay))+geom_histogram()
+ggplot(flights, aes(dep_delay))+geom_histogram()
+
+transmute(nycflights13::flights,hour=dep_time%/%100,min=dep_time %% 100)
+
+library(Rfacebook)
+url<-"https://graph.facebook.com/v1.0/search?q=search_query&type=post&access_token={access_token}"
+token<-"EAAkkFHsQU0QBAJby2Pw3FjUs1nV3oiG5QWVtzdCIUZB7zknh9qbikNBBqUsrV9SyZAEoHk2ZChducszs4QbSGnAZBekZAoO5KWiHzDHIl0yzPVAs9WHSVlT7wCLnWTzadCLT46VNTbJ1tuGJSyoZCZBn0ATPXANIL8GVforBFzvvnXAZChjWYMdpdMPWRNvljUvHgVQQvbnYduiBWhP98x1yQdbMUinMFYZBXkVNhpQQHlQZDZD"
+callAPI(url, token, api = NULL)
+searchFacebook("black Friday deals", token, n = 10, since = NULL, until = NULL)
