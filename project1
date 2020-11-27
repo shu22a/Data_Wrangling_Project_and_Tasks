@@ -1,0 +1,75 @@
+EXEC sp_rename 'ashu.demographics.tri_age', 'Age', 'COLUMN'
+EXEC sp_rename 'ashu.demographics.gendercode', 'Gendername', 'COLUMN'
+EXEC sp_rename 'ashu.demographics.contactid', 'ID', 'COLUMN'
+EXEC sp_rename 'ashu.demographics.address1_stateorprovince', 'State', 'COLUMN'
+EXEC sp_rename 'ashu.demographics.tri_imaginecareenrollmentemailsentdate', 'EmailSentdate', 'COLUMN'
+EXEC sp_rename 'ashu.demographics.tri_enrollmentcompletedate', 'Completedate', 'COLUMN'
+
+select * from ashu.demographics
+alter table ashu.demographics
+add Enrollmentcompletiontime VARCHAR(100)
+update ashu.demographics
+select DATEDIFF(DAY, cast(EmailSentdate as datetime), cast(Completedate) as datetime) as Enrollmentcompletiontime from ashu.ashu.demographics
+
+alter table ashu.demographics
+add Enrollment_status VARCHAR(100)
+update ashu.demographics
+set Enrollment_status= 'Complete'
+where tri_imaginecareenrollmentstatus=167410011
+update ashu.demographics
+set Enrollment_status= 'Email_sent'
+where tri_imaginecareenrollmentstatus=167410001
+update ashu.demographics
+set Enrollment_status= 'Non_responder'
+where tri_imaginecareenrollmentstatus=167410004
+update ashu.demographics
+set Enrollment_status= 'Facilitated_enrollment'
+where tri_imaginecareenrollmentstatus=167410005
+update ashu.demographics
+set Enrollment_status= 'Incomplete_Enrollment'
+where tri_imaginecareenrollmentstatus=167410002
+update ashu.demographics
+set Enrollment_status= 'Opted_Out'
+where tri_imaginecareenrollmentstatus=167410003
+update ashu.demographics
+set Enrollment_status= 'Unprocessed'
+where tri_imaginecareenrollmentstatus=167410000
+update ashu.demographics
+set Enrollment_status= 'Second_email_sent'
+where tri_imaginecareenrollmentstatus=167410006
+
+alter table ashu.demographics
+add Sex VARCHAR(100)
+update ashu.demographics
+set Gendername = cast(NULL as int)
+update ashu.demographics
+set Sex='female'
+where Gendername=2
+update ashu.demographics
+set Sex='male'
+where Gendername=1
+update ashu.demographics
+set Sex='other'
+where Gendername=167410000
+update ashu.demographics
+set Sex='Unknown'
+where Gendername='NULL'
+
+select * from ashu.demographics
+alter table ashu.demographics
+add Age_group VARCHAR(100)
+update ashu.demographics
+set Age_group='0-25 years'
+where Age between 0 and 25
+update ashu.demographics
+set Age_group='26-50 years'
+where Age between 26 and 50
+update ashu.demographics
+set Age_group='51-75 years'
+where Age between 51 and 75
+update ashu.demographics
+set Age_group='76-100 years'
+where Age between 76 and 100
+update ashu.demographics
+set Age_group='101-125 years'
+where Age between 101 and 125
